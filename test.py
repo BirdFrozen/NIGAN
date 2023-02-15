@@ -141,13 +141,37 @@ class TTAFrame():
         
 #source = 'dataset/test/'
 def test_all(model_dir):
-    source = '/run/media/cug/00077CE80009E4AD/Liuzhuoyue/data/road_seg/test/'
+    # _base_dir = '/home/mj/data/work_road/data/SpaceNet'
+    # _image_dir = os.path.join(_base_dir, 'RGB-PanSharpen_8bit')
+    # _cat_dir = os.path.join(_base_dir, 'masks_3m')
+
+    # split = ['test']
+    # _splits_dir = os.path.join(_base_dir)
+
+    # im_ids = []
+    # images = []
+    # categories = []
+
+    # for splt in split:
+    #     with open(os.path.join(os.path.join(_splits_dir, f'{splt}' + '.txt')), "r") as f:
+    #         lines = f.read().splitlines()
+
+    #     for ii, line in enumerate(lines):
+    #         _image = os.path.join(_image_dir, line)
+    #         _cat = os.path.join(_cat_dir, line.split('n_')[1])
+    #         assert os.path.isfile(_image)
+    #         assert os.path.isfile(_cat)
+    #         im_ids.append(line)
+    #         images.append(_image)
+    #         categories.append(_cat)
+
+    source = '/home/mj/data/work_syj/code/GeoSeg/data/vaihingen/test/images/'
     val = os.listdir(source)
     model_name = str(model_dir)
     solver = TTAFrame(DinkNet34_lzy)
-    solver.load('/run/media/cug/00077CE80009E4AD/Liuzhuoyue/data/road_seg/weights/' + model_name + '.th')
+    solver.load('/home/mj/data/work_syj/code/NIGAN/weights/' + model_name + '.th')
     tic = time()
-    target = '/run/media/cug/00077CE80009E4AD/Liuzhuoyue/data/road_seg/submits/' + model_name + '/'
+    target = '/home/mj/data/work_syj/code/NIGAN/submits/' + model_name + '/'
     # os.mkdir(target)
     filepath = Path(target)
     if filepath.exists():
@@ -164,10 +188,10 @@ def test_all(model_dir):
         mask = solver.test_one_img_from_path(source + name)
         mask[mask > 4.0] = 255
         mask[mask <= 4.0] = 0
-        mask = np.concatenate([mask[:, :, None], mask[:, :, None], mask[:, :, None]], axis=2)
-        cv2.imwrite(target + name[:-7] + 'mask.png', mask.astype(np.uint8))
-    labledir = '/run/media/cug/00077CE80009E4AD/Liuzhuoyue/data/road_seg/test_out/'
-    predir = '/run/media/cug/00077CE80009E4AD/Liuzhuoyue/data/road_seg/submits/' + model_name + '/'
+        # mask = np.concatenate([mask[:, :, None], mask[:, :, None], mask[:, :, None]], axis=2)
+        cv2.imwrite(target + name[:-4] + '.png', mask.astype(np.uint8))
+    labledir = '/home/mj/data/work_syj/code/GeoSeg/data/vaihingen/test/masks/'
+    predir = '/home/mj/data/work_syj/code/NIGAN/submits/' + model_name + '/'
     MIOU = computeall(labledir, predir)
     return MIOU
 

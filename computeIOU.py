@@ -1,5 +1,5 @@
 import numpy as np
-from MIoUData import MIoU_dataloader
+# from MIoUData import MIoU_dataloader
 class Evaluator(object):
     def __init__(self, num_class):
         self.num_class = num_class
@@ -44,22 +44,22 @@ class Evaluator(object):
     def reset(self):
         self.confusion_matrix = np.zeros((self.num_class,) * 2)
 
-if __name__ == "__main__":
-    best_miou = 0.0
-    for i in range(1):
-        miou = Evaluator(256)
-        miouVal = 0
-        accVal = 0
-        for index, (predict, label) in enumerate(MIoU_dataloader):
-            predict = predict.cpu().numpy()
-            label = label.cpu().numpy()
-            miou.add_batch(label, predict)
-            accVal += miou.Pixel_Accuracy()
-            miouVal += miou.Mean_Intersection_over_Union()
-            print(index)
-            print('acc and miou are {},{}'.format(miou.Pixel_Accuracy(),miou.Mean_Intersection_over_Union()))
-        now_miou = miouVal/len(MIoU_dataloader)
-        if now_miou > best_miou:
-            best_miou = now_miou
-        print('all acc and miou are {},{}'.format(accVal/len(MIoU_dataloader),miouVal/len(MIoU_dataloader)))
-    print('best miou are{}'.format(best_miou))
+# if __name__ == "__main__":
+#     best_miou = 0.0
+#     for i in range(1):
+#         miou = Evaluator(256)
+#         miouVal = 0
+#         accVal = 0
+#         for index, (predict, label) in enumerate(MIoU_dataloader):
+#             predict = predict.cpu().numpy()
+#             label = label.cpu().numpy()
+#             miou.add_batch(label, predict)
+#             accVal += miou.Pixel_Accuracy()
+#             miouVal += miou.Mean_Intersection_over_Union()
+#             print(index)
+#             print('acc and miou are {},{}'.format(miou.Pixel_Accuracy(),miou.Mean_Intersection_over_Union()))
+#         now_miou = miouVal/len(MIoU_dataloader)
+#         if now_miou > best_miou:
+#             best_miou = now_miou
+#         print('all acc and miou are {},{}'.format(accVal/len(MIoU_dataloader),miouVal/len(MIoU_dataloader)))
+#     print('best miou are{}'.format(best_miou))

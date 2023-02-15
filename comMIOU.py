@@ -46,6 +46,28 @@ class SegmentationMetric(object):
         IoU = intersection / union  # 返回列表，其值为各个类别的IoU
         mIoU = np.nanmean(IoU)  # 求各类别IoU的平均
         return mIoU
+    
+    def IntersectionOverUnion(self):
+        intersection = np.diag(self.confusionMatrix)  # 取对角元素的值，返回列表
+        union = np.sum(self.confusionMatrix, axis=1) + np.sum(self.confusionMatrix, axis=0) - np.diag(
+            self.confusionMatrix)  # axis = 1表示混淆矩阵行的值，返回列表； axis = 0表示取混淆矩阵列的值，返回列表
+        IoU = intersection / union  # 返回列表，其值为各个类别的IoU
+        return IoU
+    
+    def get_tp_fp_tn_fn(self):
+        tp = np.diag(self.confusion_matrix)
+        fp = self.confusion_matrix.sum(axis=0) - np.diag(self.confusion_matrix)
+        fn = self.confusion_matrix.sum(axis=1) - np.diag(self.confusion_matrix)
+        tn = np.diag(self.confusion_matrix).sum() - np.diag(self.confusion_matrix)
+        return tp, fp, tn, fn
+
+    def F1Scores(self):
+        tp, fp, tn, fn = self.get_tp_fp_tn_fn()
+        Precision = tp / (tp + fp)
+        Recall = tp / (tp + fn)
+        F1 = (2.0 * Precision * Recall) / (Precision + Recall)
+        return F1
+
 
     def genConfusionMatrix(self, imgPredict, imgLabel):  # 同FCN中score.py的fast_hist()函数
         # remove classes from unlabeled pixels in gt image and predict
@@ -92,6 +114,7 @@ def computeall(labledir, predir):
     filename = os.listdir(predir)
     # print(filename)
     # print(os.listdir('/mnt/data/Liuzhuoyue/data/road_seg/submits/DinkNet101_01_03_08_025_18_09_zero_900/'))
+    metric = SegmentationMetric(2)  # 3表示有3个分类，有几个分类就填几
     for fn in filename:
         imgPredict = read_img(predir + fn)
         imgLabel = read_img(labledir + fn)
@@ -100,23 +123,29 @@ def computeall(labledir, predir):
         # imgLabel = read_img('/mnt/data/Liuzhuoyue/data/road_seg/submits/lable_ttt_out/1420.png')
         # imgPredict = np.array([255, 0, 255, 255, 0, 0])  # 可直接换成预测图片
         # imgLabel = np.array([0, 255, 255, 255, 0, 0])  # 可直接换成标注图片
-        metric = SegmentationMetric(256)  # 3表示有3个分类，有几个分类就填几
+
+        # metric = SegmentationMetric(2)  # 3表示有3个分类，有几个分类就填几
         metric.addBatch(imgPredict, imgLabel)
         pa = metric.pixelAccuracy()
-        cpa = metric.classPixelAccuracy()
-        mpa = metric.meanPixelAccuracy()
+        # cpa = metric.classPixelAccuracy()
+        # mpa = metric.meanPixelAccuracy()
         mIoU = metric.meanIntersectionOverUnion()
+        IoU = metric.IntersectionOverUnion()
+        F1 = metric.F1Scores()
         Sum_mIou += mIoU
-        Sum_mpa += mpa
-        Sum_pa += pa
+        # Sum_mpa += mpa
+        # Sum_pa += pa
+        
         # print('pa is : %f' % pa)
         # print('cpa is :')  # 列表
         # print(cpa)
         # print('mpa is : %f' % mpa)
         # print('%s is mIoU is : %f  mpa is : %f  pa is : %f' % (fn, mIoU, mpa, pa))
     print('mIoU is : %f' % (Sum_mIou / len(filename)))
-    print('allmpa is : %f' % (Sum_mpa / len(filename)))
-    print('allpa is : %f' % (Sum_pa / len(filename)))
+    # print('allmpa is : %f' % (Sum_mpa / len(filename)))
+    # print('allpa is : %f' % (Sum_pa / len(filename)))
+    print('F1 is : %f' % F1)
+    print('IoU is : %f' % IoU)
     return (Sum_mIou / len(filename))
 
 

@@ -5,7 +5,7 @@ import computeIOU
 import cv2
 import numpy as np
 import copy
-import metrics
+# import metrics
 
 class MyFrame():
     def __init__(self, net, loss, lr=2e-4, evalmode = False):
