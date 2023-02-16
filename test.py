@@ -18,6 +18,8 @@ from networks.unet import Unet
 from networks.dunet import Dunet
 from networks.dinknet import LinkNet34, DinkNet34, DinkNet50, DinkNet101, DinkNet34_less_pool,DinkNet34_lzy,DinkNet101_lzy
 
+from tqdm import tqdm
+
 BATCHSIZE_PER_CARD = 4
 torch.cuda.set_device(1)
 
@@ -181,10 +183,11 @@ def test_all(model_dir):
     else:
         os.mkdir(target)
 
-    for i, name in enumerate(val):
+    print('test')
+    for i, name in tqdm(enumerate(val),total = len(val)):
         # print('name:',name)
-        if i % 10 == 0:
-            print(i / 10, '    ', '%.2f' % (time() - tic))
+        # if i % 10 == 0:
+        #     print(i / 10, '    ', '%.2f' % (time() - tic))
         mask = solver.test_one_img_from_path(source + name)
         mask[mask > 4.0] = 255
         mask[mask <= 4.0] = 0
@@ -192,8 +195,8 @@ def test_all(model_dir):
         cv2.imwrite(target + name[:-4] + '.png', mask.astype(np.uint8))
     labledir = '/home/mj/data/work_syj/code/GeoSeg/data/vaihingen/test/masks/'
     predir = '/home/mj/data/work_syj/code/NIGAN/submits/' + model_name + '/'
-    MIOU = computeall(labledir, predir)
-    return MIOU
+    MIOU,IOU,F1 = computeall(labledir, predir)
+    return MIOU,IOU,F1
 
 
 if __name__ == "__main__":

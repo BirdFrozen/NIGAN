@@ -61,6 +61,7 @@ for epoch in range(1, total_epoch + 1):
         solver.set_input(img, mask)
         train_loss = solver.optimize()
         train_epoch_loss += train_loss
+        # break
     train_epoch_loss /= len(data_loader_iter)
     print('********', file=mylog)
     print('epoch:', epoch, '    time:', int(time()-tic), file=mylog)
@@ -78,10 +79,11 @@ for epoch in range(1, total_epoch + 1):
         no_optim = 0
         train_epoch_best_loss = train_epoch_loss
         solver.save('/home/mj/data/work_syj/code/NIGAN/weights/'+NAME+'.th')
-        now_miou = test_all(NAME)
-        if now_miou > best_miou:
-            print('最大的MIOU从{}更新到{}'.format(best_miou, now_miou))
-            best_miou = now_miou
+        now_miou,IoU,F1 = test_all(NAME)
+        print(f'IoU {IoU[1]} , F1Score {F1[1]}', file=mylog)
+        if IoU[1] > best_miou:
+            print('最大的MIOU从{}更新到{}'.format(best_miou, IoU[1]))
+            best_miou = IoU[1]
             solver.save('/home/mj/data/work_syj/code/NIGAN/weights/' + NAME+ '_bestmiou.th')
 
     if no_optim > 48:

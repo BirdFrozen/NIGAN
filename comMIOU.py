@@ -55,10 +55,10 @@ class SegmentationMetric(object):
         return IoU
     
     def get_tp_fp_tn_fn(self):
-        tp = np.diag(self.confusion_matrix)
-        fp = self.confusion_matrix.sum(axis=0) - np.diag(self.confusion_matrix)
-        fn = self.confusion_matrix.sum(axis=1) - np.diag(self.confusion_matrix)
-        tn = np.diag(self.confusion_matrix).sum() - np.diag(self.confusion_matrix)
+        tp = np.diag(self.confusionMatrix)
+        fp = self.confusionMatrix.sum(axis=0) - np.diag(self.confusionMatrix)
+        fn = self.confusionMatrix.sum(axis=1) - np.diag(self.confusionMatrix)
+        tn = np.diag(self.confusionMatrix).sum() - np.diag(self.confusionMatrix)
         return tp, fp, tn, fn
 
     def F1Scores(self):
@@ -71,6 +71,8 @@ class SegmentationMetric(object):
 
     def genConfusionMatrix(self, imgPredict, imgLabel):  # 同FCN中score.py的fast_hist()函数
         # remove classes from unlabeled pixels in gt image and predict
+        # imgLabel = (imgLabel/255).astype(np.uint8)
+        imgPredict = (imgPredict/255).astype(np.uint8)
         mask = (imgLabel >= 0) & (imgLabel < self.numClass)
         label = self.numClass * imgLabel[mask] + imgPredict[mask]
         count = np.bincount(label, minlength=self.numClass ** 2)
@@ -129,10 +131,8 @@ def computeall(labledir, predir):
         pa = metric.pixelAccuracy()
         # cpa = metric.classPixelAccuracy()
         # mpa = metric.meanPixelAccuracy()
-        mIoU = metric.meanIntersectionOverUnion()
-        IoU = metric.IntersectionOverUnion()
-        F1 = metric.F1Scores()
-        Sum_mIou += mIoU
+        
+        # Sum_mIou += mIoU
         # Sum_mpa += mpa
         # Sum_pa += pa
         
@@ -141,12 +141,17 @@ def computeall(labledir, predir):
         # print(cpa)
         # print('mpa is : %f' % mpa)
         # print('%s is mIoU is : %f  mpa is : %f  pa is : %f' % (fn, mIoU, mpa, pa))
-    print('mIoU is : %f' % (Sum_mIou / len(filename)))
+    # print('mIoU is : %f' % (Sum_mIou / len(filename)))
     # print('allmpa is : %f' % (Sum_mpa / len(filename)))
     # print('allpa is : %f' % (Sum_pa / len(filename)))
-    print('F1 is : %f' % F1)
-    print('IoU is : %f' % IoU)
-    return (Sum_mIou / len(filename))
+
+    mIoU = metric.meanIntersectionOverUnion()
+    IoU = metric.IntersectionOverUnion()
+    F1 = metric.F1Scores()
+    print(f'mIoU is : {mIoU}')
+    print(f'F1 is : {F1}')
+    print(f'IoU is : {IoU}' )
+    return mIoU,IoU,F1
 
 
 if __name__ == '__main__':
